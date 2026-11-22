@@ -1,0 +1,11 @@
+.gradle/
+build/
+app/build/
+.kotlin/
+local.properties
+.idea/
+*.iml
+private/
+PROGRESS.md
+# The app's own signing key: kept out of the public repository (see app/build.gradle.kts)
+app/debug.keystore
