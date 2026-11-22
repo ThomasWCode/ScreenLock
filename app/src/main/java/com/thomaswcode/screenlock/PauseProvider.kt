@@ -16,12 +16,15 @@ import java.util.concurrent.TimeUnit
 // call() is used, and it answers only Phone Relay (by its signing certificate) and the shell (adb):
 //   adb shell content call --uri content://com.thomaswcode.screenlock.pause --method pause --extra ms:l:2000
 //   adb shell content call --uri content://com.thomaswcode.screenlock.pause --method resume
+//   adb shell content call --uri content://com.thomaswcode.screenlock.pause --method state
 // The reply's "locked" says whether the lock is on (paused or not)
 class PauseProvider : ContentProvider() {
 
     companion object {
         const val METHOD_PAUSE = "pause"
         const val METHOD_RESUME = "resume"
+        // Only asks: Relay sends one-finger touches through the shell instead while locked, with no pause at all
+        const val METHOD_STATE = "state"
         const val EXTRA_MS = "ms"
         const val EXTRA_LOCKED = "locked"
 
@@ -42,7 +45,7 @@ class PauseProvider : ContentProvider() {
     }
 
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle {
-        if (method != METHOD_PAUSE && method != METHOD_RESUME) {
+        if (method != METHOD_PAUSE && method != METHOD_RESUME && method != METHOD_STATE) {
             throw IllegalArgumentException("Unknown method: $method")
         }
         if (!callerAllowed()) {
@@ -54,7 +57,10 @@ class PauseProvider : ContentProvider() {
         val done = CountDownLatch(1)
         Handler(Looper.getMainLooper()).post {
             val service = LockService.instance
-            if (method == METHOD_PAUSE) service?.pause(ms) else service?.resume()
+            when (method) {
+                METHOD_PAUSE -> service?.pause(ms)
+                METHOD_RESUME -> service?.resume()
+            }
             result.putBoolean(EXTRA_LOCKED, service?.locked == true)
             done.countDown()
         }

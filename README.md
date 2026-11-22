@@ -27,18 +27,20 @@ Android app that locks the touchscreen, so a person's touches can't interfere wh
 - An injected tap on the widget (adb, or Phone Relay with its pause) also toggles it, since only a finger is blocked.
 - A reboot always comes back unlocked.
 
-## Phone Relay's pause
+## Phone Relay while locked
 
-- `PauseProvider` (`content://com.thomaswcode.screenlock.pause`) has two calls: `pause` (with `ms`, the longest it may last; at most 65 s, 2 s if not given) and `resume`. During a pause the touchscreen goes back to the apps; it ends at `resume` or when `ms` runs out, whichever comes first. The reply's `locked` says whether the lock is on.
+- **One finger in a straight line** (a tap, a swipe, a long press): Phone Relay sends it through its shell bridge (`input swipe`) when the bridge answers. Shell input passes the lock without pausing it, so a finger on the screen (in a pocket, say) neither gets through nor cancels the gesture. The reply's `via` is `shell`.
+- **Anything else**, or with the shell bridge unreachable (on mobile data unless set up for it): an accessibility gesture, with the lock paused for its own time (`via` is `gesture`).
+- `PauseProvider` (`content://com.thomaswcode.screenlock.pause`) has three calls: `state`, `pause` (with `ms`, the longest it may last; at most 65 s, 2 s if not given) and `resume`. During a pause the touchscreen goes back to the apps; it ends at `resume` or when `ms` runs out, whichever comes first. Each reply's `locked` says whether the lock is on.
 - Only Phone Relay (checked by its signing certificate) and the shell may call it:
 
   ```bash
   adb shell content call --uri content://com.thomaswcode.screenlock.pause --method pause --extra ms:l:2000
   adb shell content call --uri content://com.thomaswcode.screenlock.pause --method resume
+  adb shell content call --uri content://com.thomaswcode.screenlock.pause --method state
   ```
 
-- Phone Relay pauses before each gesture and resumes after it, so a finger can get through only during a Relay gesture (50 ms for a tap, a swipe's own length).
-- A finger touching the screen during a Relay gesture still cancels that gesture, as it does without the lock: Android cancels an injected gesture when any real touch arrives.
+- With a pause, a new touch can get through only during that Relay gesture (50 ms for a tap, a swipe's own length). Android's gesture injector can also cancel a paused gesture when a real touch arrives, though that did not happen on the test phone (Android 17) with a finger rubbing or tapping during a Relay swipe.
 
 ## Safety
 
