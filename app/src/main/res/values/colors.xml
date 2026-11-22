@@ -1,0 +1,5 @@
+<resources>
+    <color name="brand">#3949AB</color>
+    <color name="launcher_background">#3949AB</color>
+    <color name="widget_off">#99424242</color>
+</resources>
