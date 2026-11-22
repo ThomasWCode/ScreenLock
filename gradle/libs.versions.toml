@@ -1,0 +1,13 @@
+[versions]
+# The owner's set (as Phone-Relay's). The app uses plain Android views and no AndroidX
+# libraries at runtime, so the APK stays small and the build fast.
+agp = "9.0.1"
+kotlin = "2.2.10"
+junit = "4.13.2"
+
+[libraries]
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
