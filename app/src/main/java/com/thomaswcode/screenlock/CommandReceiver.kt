@@ -7,7 +7,8 @@ import android.content.Intent
 // The shell's way in (adb, or Phone Relay's `as_shell` intents): lock, unlock or ask, without touching
 // the screen. Only senders holding DUMP can reach it (see the manifest): the shell has it, apps don't.
 //   adb shell am broadcast -a com.thomaswcode.screenlock.LOCK -n com.thomaswcode.screenlock/.CommandReceiver
-// The reply's data is the state afterwards: "locked", "unlocked" or "service off"
+// The reply's data is the state afterwards: "locked", "unlocked" or "service off", or
+// "refused: touch exploration is on" for a LOCK that explore by touch stops
 class CommandReceiver : BroadcastReceiver() {
 
     companion object {
@@ -18,14 +19,16 @@ class CommandReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val service = LockService.instance
+        var refused = false
         if (service != null) {
             when (intent.action) {
-                ACTION_LOCK -> service.setLocked(true)
+                ACTION_LOCK -> refused = !service.setLocked(true)
                 ACTION_UNLOCK -> service.setLocked(false)
             }
         }
         resultData = when {
             service == null -> "service off"
+            refused -> "refused: touch exploration is on"
             service.locked -> "locked"
             else -> "unlocked"
         }

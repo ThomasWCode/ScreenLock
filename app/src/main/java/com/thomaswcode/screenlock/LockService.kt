@@ -10,6 +10,7 @@ import android.os.VibratorManager
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 
 // The lock itself. While locked, the service takes in every event from the touchscreen, so Android hands
@@ -42,12 +43,28 @@ class LockService : AccessibilityService() {
         if (hold.check(SystemClock.uptimeMillis())) armedFeedback()
     }
 
+    // Touch exploration (TalkBack and the like) stops Android sending the touchscreen to onMotionEvent, so the lock
+    // would do nothing: it is refused while that is on, and lets go if it comes on while locked
+    private val touchExplorationListener = AccessibilityManager.TouchExplorationStateChangeListener { enabled ->
+        if (enabled && locked) {
+            setLocked(false)
+            Toast.makeText(this, R.string.touch_exploration_on, Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onServiceConnected() {
         instance = this
+        getSystemService(AccessibilityManager::class.java)
+            ?.addTouchExplorationStateChangeListener(touchExplorationListener)
         setLocked(LockState.restoreOnConnect(this), feedback = false)
     }
 
-    fun setLocked(on: Boolean, feedback: Boolean = true) {
+    // Returns whether the lock is now on: a lock is refused while touch exploration is on
+    fun setLocked(requested: Boolean, feedback: Boolean = true): Boolean {
+        val on = requested && !touchExplorationOn()
+        if (requested && !on) {
+            Toast.makeText(this, R.string.touch_exploration_on, Toast.LENGTH_LONG).show()
+        }
         locked = on
         handler.removeCallbacks(checkHold)
         hold.onAllUp()
@@ -57,10 +74,14 @@ class LockService : AccessibilityService() {
         }
         LockState.save(this, on)
         LockWidget.update(this)
-        if (feedback) buzz(if (on) 40L else 120L)
+        if (feedback && on == requested) buzz(if (on) 40L else 120L)
+        return on
     }
 
     fun toggle() = setLocked(!locked)
+
+    private fun touchExplorationOn(): Boolean =
+        getSystemService(AccessibilityManager::class.java)?.isTouchExplorationEnabled == true
 
     override fun onMotionEvent(event: MotionEvent) {
         if (!locked) return
@@ -130,6 +151,8 @@ class LockService : AccessibilityService() {
     // touchscreen, so the lock is off; a quick reconnect puts it back (LockState)
     private fun disconnected() {
         handler.removeCallbacks(checkHold)
+        getSystemService(AccessibilityManager::class.java)
+            ?.removeTouchExplorationStateChangeListener(touchExplorationListener)
         if (instance === this) {
             LockState.markUnbound(this)
             instance = null

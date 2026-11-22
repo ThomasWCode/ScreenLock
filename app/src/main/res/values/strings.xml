@@ -9,6 +9,7 @@
     <string name="tile_on">On</string>
     <string name="tile_off">Off</string>
 
+    <string name="touch_exploration_on">ScreenLock can\'t lock while explore by touch (TalkBack or similar) is on.</string>
     <string name="hint_locked">Touches are locked. Hold two fingers still for 3 seconds, then lift them, to unlock.</string>
 
     <string name="status_ready">Ready: lock the screen with the Touch lock widget</string>
