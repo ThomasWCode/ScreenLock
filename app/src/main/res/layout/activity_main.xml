@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/status"
+            style="@style/Label"
+            android:text="@string/status_service_off" />
+
+        <Button
+            android:id="@+id/open_settings"
+            style="@style/ActionButton"
+            android:layout_marginTop="8dp"
+            android:text="@string/action_turn_on" />
+
+        <TextView
+            style="@style/Label"
+            android:text="@string/lock_header" />
+
+        <TextView
+            style="@style/Detail"
+            android:text="@string/lock_detail" />
+
+        <TextView
+            style="@style/Label"
+            android:text="@string/unlock_header" />
+
+        <TextView
+            style="@style/Detail"
+            android:text="@string/unlock_detail" />
+
+        <TextView
+            style="@style/Label"
+            android:text="@string/still_works_header" />
+
+        <TextView
+            style="@style/Detail"
+            android:text="@string/still_works_detail" />
+
+    </LinearLayout>
+
+</ScrollView>

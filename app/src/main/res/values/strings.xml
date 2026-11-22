@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ScreenLock</string>
+    <string name="accessibility_description">Blocks your touches on the screen while the lock is on, so they cannot interfere with what an automation is doing. Input sent over adb or by other accessibility services still works. Turn the lock on with the ScreenLock widget; hold two fingers still on the screen for 3 seconds, then lift them, to turn it off.</string>
+
+    <string name="widget_label">Touch lock</string>
+    <string name="widget_description">One tap to block your touches on the screen; hold two fingers for 3 seconds to unblock</string>
+    <string name="widget_state">Touch lock: %1$s</string>
+    <string name="widget_setup">Set up</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+
+    <string name="hint_locked">Touches are locked. Hold two fingers still for 3 seconds, then lift them, to unlock.</string>
+
+    <string name="status_ready">Ready: lock the screen with the Touch lock widget</string>
+    <string name="status_service_off">The ScreenLock accessibility service is off. Turn it on to use the lock.</string>
+    <string name="action_turn_on">Open accessibility settings</string>
+    <string name="action_settings">Accessibility settings</string>
+
+    <string name="lock_header">Lock</string>
+    <string name="lock_detail">Add the Touch lock widget to the home screen (long-press an empty spot, Widgets, ScreenLock) and tap it. It turns on, and from then on touches on the screen reach nothing. The volume and power buttons still work as normal.</string>
+    <string name="unlock_header">Unlock</string>
+    <string name="unlock_detail">Hold two fingers still on the screen for 3 seconds: the phone buzzes twice. Lift them and the lock turns off (one longer buzz). A third finger, or sliding or lifting a finger early, starts it over. Restarting the phone also turns the lock off.</string>
+    <string name="still_works_header">What still works while locked</string>
+    <string name="still_works_detail">Taps, swipes, keys and text sent over adb, and gestures from other accessibility services such as Phone Relay. From adb:\nadb shell am broadcast -a com.thomaswcode.screenlock.UNLOCK -n com.thomaswcode.screenlock/.CommandReceiver\n(LOCK and STATUS work the same way).</string>
+</resources>
