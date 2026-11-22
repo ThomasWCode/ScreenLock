@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">ScreenLock</string>
-    <string name="accessibility_description">Blocks your touches on the screen while the lock is on, so they cannot interfere with what an automation is doing. Input sent over adb or by other accessibility services still works. Turn the lock on with the ScreenLock widget; hold two fingers still on the screen for 3 seconds, then lift them, to turn it off.</string>
+    <string name="accessibility_description">Blocks your touches on the screen while the lock is on, so they cannot interfere with what an automation is doing. Input sent over adb, and Phone Relay\'s gestures, still work. Turn the lock on with the ScreenLock widget; hold two fingers still on the screen for 3 seconds, then lift them, to turn it off.</string>
 
     <string name="widget_label">Touch lock</string>
     <string name="widget_description">One tap to block your touches on the screen; hold two fingers for 3 seconds to unblock</string>
@@ -22,5 +22,5 @@
     <string name="unlock_header">Unlock</string>
     <string name="unlock_detail">Hold two fingers still on the screen for 3 seconds: the phone buzzes twice. Lift them and the lock turns off (one longer buzz). A third finger, or sliding or lifting a finger early, starts it over. Restarting the phone also turns the lock off.</string>
     <string name="still_works_header">What still works while locked</string>
-    <string name="still_works_detail">Taps, swipes, keys and text sent over adb, and gestures from other accessibility services such as Phone Relay. From adb:\nadb shell am broadcast -a com.thomaswcode.screenlock.UNLOCK -n com.thomaswcode.screenlock/.CommandReceiver\n(LOCK and STATUS work the same way).</string>
+    <string name="still_works_detail">Taps, swipes, keys and text sent over adb, and Phone Relay (it pauses the lock for a moment around each of its gestures). Other accessibility services\' gestures are blocked. From adb:\nadb shell am broadcast -a com.thomaswcode.screenlock.UNLOCK -n com.thomaswcode.screenlock/.CommandReceiver\n(LOCK and STATUS work the same way).</string>
 </resources>

@@ -5,7 +5,9 @@ Android app that locks the touchscreen, so a person's touches can't interfere wh
 ## How it works
 
 - An accessibility service (`LockService`) asks Android for every event from the touchscreen (`AccessibilityServiceInfo.setMotionEventSources(SOURCE_TOUCHSCREEN)`). Android then hands those events to the service instead of to the apps, so a finger on the glass reaches nothing: no app, no navigation gestures, no notification shade.
-- Injected input does not come from the touchscreen and joins the input pipeline after that point, so it is never taken: adb's `input tap/swipe/keyevent/text`, and gestures that accessibility services dispatch (`dispatchGesture`, which Phone Relay taps with).
+- Input injected over adb (`input tap/swipe/keyevent/text`) joins the input pipeline after that point, so it is never taken.
+- Gestures that accessibility services dispatch (`dispatchGesture`, which Phone Relay taps and swipes with) are different: Android's gesture injector sits *before* the interception, so they are taken like a finger's. Phone Relay therefore pauses the lock around each of its gestures (below). Other services' gestures are blocked while locked.
+- Phone Relay's typing, keys, screenshots and screen reading don't go through the touchscreen, so the lock never affects them.
 - Nothing is drawn on the screen, so screenshots look exactly as they do without the lock.
 - Unlocked, the service takes in nothing and does nothing.
 - The volume and power buttons are not blocked.
@@ -22,8 +24,21 @@ Android app that locks the touchscreen, so a person's touches can't interfere wh
   adb shell am broadcast -a com.thomaswcode.screenlock.STATUS -n com.thomaswcode.screenlock/.CommandReceiver
   ```
 
-- An injected tap on the widget (adb or Phone Relay) also toggles it, since only a finger is blocked.
+- An injected tap on the widget (adb, or Phone Relay with its pause) also toggles it, since only a finger is blocked.
 - A reboot always comes back unlocked.
+
+## Phone Relay's pause
+
+- `PauseProvider` (`content://com.thomaswcode.screenlock.pause`) has two calls: `pause` (with `ms`, the longest it may last; at most 65 s, 2 s if not given) and `resume`. During a pause the touchscreen goes back to the apps; it ends at `resume` or when `ms` runs out, whichever comes first. The reply's `locked` says whether the lock is on.
+- Only Phone Relay (checked by its signing certificate) and the shell may call it:
+
+  ```bash
+  adb shell content call --uri content://com.thomaswcode.screenlock.pause --method pause --extra ms:l:2000
+  adb shell content call --uri content://com.thomaswcode.screenlock.pause --method resume
+  ```
+
+- Phone Relay pauses before each gesture and resumes after it, so a finger can get through only during a Relay gesture (50 ms for a tap, a swipe's own length).
+- A finger touching the screen during a Relay gesture still cancels that gesture, as it does without the lock: Android cancels an injected gesture when any real touch arrives.
 
 ## Safety
 
@@ -31,6 +46,7 @@ Android app that locks the touchscreen, so a person's touches can't interfere wh
 - `uiautomator dump` (and Phone Relay's `/ui?engine=uiautomator`) unbinds every accessibility service for a moment, so the lock drops for that moment. The service puts it back by itself when it reconnects within 60 seconds in the same boot.
 - The phone's own lock screen is behind the same lock: hold two fingers to unlock ScreenLock first, then unlock the phone as usual.
 - A Phone Relay request card (`POST /request`) can't be answered by a finger while locked.
+- The lock refuses to turn on while explore by touch (TalkBack or similar) is on, and lets go if that comes on while locked: Android stops sending the touchscreen to the service then, so the lock would do nothing.
 
 ## Install (sideload)
 
