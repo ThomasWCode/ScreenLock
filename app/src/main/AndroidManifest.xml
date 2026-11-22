@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- A short buzz on lock and unlock, and two pulses once the unlock hold is long enough -->
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- PauseProvider checks Phone Relay's signing certificate -->
+    <queries>
+        <package android:name="com.thomaswcode.phonerelay" />
+    </queries>
 
     <application
         android:allowBackup="false"
@@ -57,6 +63,13 @@
                 <action android:name="com.thomaswcode.screenlock.STATUS" />
             </intent-filter>
         </receiver>
+
+        <!-- Phone Relay pauses the lock around its own gestures; the provider itself checks who calls -->
+        <provider
+            android:name=".PauseProvider"
+            android:authorities="com.thomaswcode.screenlock.pause"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
 
     </application>
 
