@@ -104,11 +104,12 @@ class LockService : AccessibilityService() {
     private var paused = false
     private val endPause = Runnable { resume() }
 
-    // Taking in the touchscreen's events is the lock; 0 gives them back to the apps
+    // Taking in the touchscreen's events is the lock; 0 gives them back to the apps. Without a connection (the
+    // service ending) there is no info to change, and Android has taken the touchscreen back already
     private fun applySources() {
-        serviceInfo = serviceInfo.apply {
-            motionEventSources = if (locked && !paused) InputDevice.SOURCE_TOUCHSCREEN else 0
-        }
+        val info = serviceInfo ?: return
+        info.motionEventSources = if (locked && !paused) InputDevice.SOURCE_TOUCHSCREEN else 0
+        serviceInfo = info
     }
 
     private fun touchExplorationOn(): Boolean =
@@ -185,6 +186,8 @@ class LockService : AccessibilityService() {
     // touchscreen, so the lock is off; a quick reconnect puts it back (LockState)
     private fun disconnected() {
         handler.removeCallbacks(checkHold)
+        handler.removeCallbacks(endPause)
+        paused = false
         getSystemService(AccessibilityManager::class.java)
             ?.removeTouchExplorationStateChangeListener(touchExplorationListener)
         if (instance === this) {
